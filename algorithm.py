@@ -25,7 +25,9 @@ def walk_trap(g,t):
 	dendogram = g.community_walktrap(steps=4)
 	cl = dendogram.as_clustering()
 	walktrapmap_clusters = extract_clusters(cl, reverseIdMap)
-	write_file(0,t,list(walktrapmap_clusters))
+	print walktrapmap_clusters
+	filename =  t.split('/')[1].split('.')[0]
+	write_file(0,filename,list(walktrapmap_clusters))
 	#quit()
 
 def infomap(g,t):
@@ -52,7 +54,9 @@ def fast_greedy(g,t):
 	dendogram = g.community_fastgreedy()
 	cl = dendogram.as_clustering()
 	fastgreedy_clusters = extract_clusters(cl, reverseIdMap)
-	write_file(2,t,list(fastgreedy_clusters))
+	print fastgreedy_clusters
+	filename =  t.split('/')[1].split('.')[0]
+	write_file(2,filename,list(fastgreedy_clusters))
 	#quit()
 
 def leading_eigenvector(g,t):
