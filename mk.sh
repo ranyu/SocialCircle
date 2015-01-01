@@ -6,4 +6,4 @@ mkdir labelPropa
 mkdir multilevel
 mkdir optimalModularity
 mkdir spinGlass
-	
+mkdir edgeBetweenness
