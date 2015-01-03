@@ -1,27 +1,24 @@
 import os
 import collections
 from algorithm import walk_trap,infomap,fast_greedy,leading_eigenvector,\
-label_propagation,multilevel,optimal_modularity,spinglass,edge_betweenness
+label_propagation,multilevel,optimal_modularity,spinglass,edge_betweenness,\
+extract_clusters
 from igraph import Graph,plot
 import glob
 from igraph import arpack_options
-
+from writesubmisson import write_main
+from socialCircles_metric import social_evaluate
 arpack_options.maxiter=300000
 
+
 def loadFeatures(featureMap,filename):
-    #filename = 'facebook/0.feat'
     with open(filename,'r') as f:    	
     	for data in f:
     		parts = data.strip().split()
-    		#print len(parts[1:])
-    		#print parts[1:]
     		currentPerson = parts[0]
     		for part in xrange(1,len(parts[1:])):
 	    		value = parts[part]
 	    		featureMap[currentPerson][part-1] = value
-	    		#print key,value,featureMap[currentPerson]
-    		#print currentPerson#,featureMap[currentPerson]
-    		#quit()
     return featureMap
 
 def input_graph_data(flag,filename):
@@ -88,39 +85,27 @@ def load_features_list(filename):
 def main():
 	featureMap = collections.defaultdict(dict)
 	for s in glob.glob('facebook/*.feat'):
-		print s
+		#print s
 		loadFeatures(featureMap,s)
-	#print featureMap['2661']
-	#quit()
-	'''for s in glob.glob('facebook/*.featnames'):
-		print s,load_features_list(s)
-		quit()
-	quit()'''
 
 	flag = False #False--facebook,True--twitter,gplus
 
-	for t in glob.glob('facebook/*.edges'):
-		if t != 'facebook/1912.edges':
-			g = input_graph_data_fet(flag,featureMap,t)
-			#print t
-			#print g.vs['name'],list(g.vs)
-			#quit()
-			#for i in xrange(10):
-				#print 'attr'+str(i)#len(g.vs['attr'+str(i)])
-			#quit()
-			print t		
-			#layout = g.layout("kk")
-			#plot(g, layout = layout)
-			#infomap(g,t)
-			#quit()
-			edge_betweenness(g,t,flag)
-			#walk_trap(g,t)
-			#fast_greedy(g,t)
-			#leading_eigenvector(g,t)
-			#label_propagation(g,t)
-			#multilevel(g,t)
-			#optimal_modularity(g,t)
-			#spinglass(g,t)	#Wrong temp
-		
+	for t in glob.glob('facebook/0.edges'):
+		g = input_graph_data_fet(flag,featureMap,t)
+		print t
+		walk_trap(g,t)
+		infomap(g,t)
+		fast_greedy(g,t)
+		leading_eigenvector(g,t)
+		label_propagation(g,t)
+		multilevel(g,t) # Louvain another name
+		#A little slow,use it cautionly
+		edge_betweenness(g,t,flag)# Girvan Newman another name
+		#Too slow,use it cautionly
+		optimal_modularity(g,t) 
+	write_main()
+	for file_name in glob.glob('*/clusters_data.txt'):
+		print file_name.split('/')[0]+':\n'
+		social_evaluate(file_name,'facebook/clusters_data.txt')
 if __name__ == '__main__':
 	main()

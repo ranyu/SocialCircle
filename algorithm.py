@@ -15,6 +15,25 @@ def extract_clusters(clusters, reverseIdMap):
         next_cluster = [reverseIdMap[j] for j in clusters[i]]
         new_clusters.append(next_cluster)
     return new_clusters
+def real_data(g,t):
+	reverseIdMap = {}
+	idMap = {}
+	currentId = 0
+	for friend in g.vs['name']:
+		idMap[friend] = currentId
+		reverseIdMap[currentId] = friend
+		currentId += 1	
+	#print g
+	#quit()
+	dendogram = g.community_walktrap(steps=4)
+	#print '~~~',dendogram.graph()
+	#quit()
+	cl = dendogram.as_clustering()
+	#print cl._formatted_cluster_iterator
+	quit()
+	walktrapmap_clusters = extract_clusters(cl, reverseIdMap)
+	filename =  t.split('/')[1].split('.')[0]
+	return cl
 
 def walk_trap(g,t):
 	reverseIdMap = {}
@@ -27,9 +46,9 @@ def walk_trap(g,t):
 	dendogram = g.community_walktrap(steps=4)
 	cl = dendogram.as_clustering()
 	walktrapmap_clusters = extract_clusters(cl, reverseIdMap)
-	print walktrapmap_clusters
 	filename =  t.split('/')[1].split('.')[0]
-	#write_file(0,filename,list(walktrapmap_clusters))
+	write_file(0,filename,list(walktrapmap_clusters))
+	return cl	
 	#quit()
 
 def infomap(g,t):
@@ -42,7 +61,7 @@ def infomap(g,t):
 		currentId += 1	
 	dendogram = g.community_infomap(trials=10)
 	infomap_clusters = extract_clusters(dendogram, reverseIdMap)
-	print infomap_clusters
+	#print infomap_clusters
 	filename =  t.split('/')[1].split('.')[0]
 	write_file(1,filename,list(infomap_clusters))
 	#quit()
@@ -58,9 +77,11 @@ def fast_greedy(g,t):
 	dendogram = g.community_fastgreedy()
 	cl = dendogram.as_clustering()
 	fastgreedy_clusters = extract_clusters(cl, reverseIdMap)
-	print fastgreedy_clusters
+	#print fastgreedy_clusters
 	filename =  t.split('/')[1].split('.')[0]
-	#write_file(2,filename,list(fastgreedy_clusters))
+	write_file(2,filename,list(fastgreedy_clusters))
+	return cl
+	
 	#quit()
 
 def leading_eigenvector(g,t):
@@ -73,7 +94,7 @@ def leading_eigenvector(g,t):
 		currentId += 1	
 	dendogram = g.community_leading_eigenvector()
 	leading_eigenvector_clusters = extract_clusters(dendogram, reverseIdMap)
-	print leading_eigenvector_clusters
+	#print leading_eigenvector_clusters
 	filename =  t.split('/')[1].split('.')[0]
 	#write_file(3,filename,list(leading_eigenvector_clusters))
 	#quit()
@@ -87,9 +108,9 @@ def label_propagation(g,t):
 		currentId += 1	
 	dendogram = g.community_label_propagation()
 	label_propagation_clusters = extract_clusters(dendogram, reverseIdMap)
-	print label_propagation_clusters
+	#print label_propagation_clusters
 	filename =  t.split('/')[1].split('.')[0]
-	#write_file(4,filename,list(label_propagation_clusters))
+	write_file(4,filename,list(label_propagation_clusters))
 
 def multilevel(g,t):
 	reverseIdMap = {}
@@ -101,9 +122,10 @@ def multilevel(g,t):
 		currentId += 1	
 	dendogram = g.community_multilevel()
 	multilevel_clusters = extract_clusters(dendogram, reverseIdMap)
-	print multilevel_clusters
+	#print multilevel_clusters
 	filename =  t.split('/')[1].split('.')[0]
-	#write_file(5,filename,list(multilevel_clusters))
+	write_file(5,filename,list(multilevel_clusters))
+	return dendogram
 
 def optimal_modularity(g,t):
 	reverseIdMap = {}
@@ -129,9 +151,9 @@ def spinglass(g,t):
 	#print dendogram
 	#quit()
 	spinglass_clusters = extract_clusters(dendogram, reverseIdMap)
-	print multilevel_clusters
+	#print multilevel_clusters
 	filename =  t.split('/')[1].split('.')[0]
-	#write_file(7,filename,list(spinglass_clusters))
+	write_file(7,filename,list(spinglass_clusters))
 def edge_betweenness(g,t,flag):
 	reverseIdMap = {}
 	idMap = {}
@@ -143,6 +165,6 @@ def edge_betweenness(g,t,flag):
 	dendogram = g.community_edge_betweenness(directed=flag)
 	cl = dendogram.as_clustering()
 	edge_betweenness_clusters = extract_clusters(cl, reverseIdMap)
-	print edge_betweenness_clusters
+	#print edge_betweenness_clusters
 	filename =  t.split('/')[1].split('.')[0]
 	write_file(8,filename,list(edge_betweenness_clusters))
