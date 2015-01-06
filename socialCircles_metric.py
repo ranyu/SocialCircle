@@ -41,7 +41,7 @@ def loss1(usersPerCircle, usersPerCircleP):
       editCost += mm2[row][column]
     return int(editCost)
 
-def social_evaluate(filename1,filename2):
+def social_evaluate(s1,filename1,filename2,ff):
   if filename1 == '' or filename2 == '':
     print "Expected two arguments (ground-truth and prediction filenames)"
     sys.exit(0)
@@ -64,6 +64,7 @@ def social_evaluate(filename1,filename2):
 
   if len(gLines) != len(pLines):
     print "Ground-truth and prediction files should have the same number of lines"
+    ff.write("Ground-truth and prediction files should have the same number of lines")
     sys.exit(0)
 
   circlesG = {}
@@ -75,15 +76,16 @@ def social_evaluate(filename1,filename2):
     circlesP[int(uidP)] = [set([int(x) for x in c.split()]) for c in friendsP.split(';')]
 
   totalLoss = 0
+  ff.write(str(s1)+':\n')
+  #ff.write('??')
   for k in circlesP.keys():
     if not circlesG.has_key(k):
       print "Ground-truth has prediction for circle", k, "but prediction does not"
       sys.exit(0)
     l = loss1(circlesG[k], circlesP[k])
-    print "loss for user", k, "=", l
+    #print "loss for user", k, "=", l
+    ff.write("loss for user"+ str(k)+"="+str(l)+' ')
     totalLoss += l
 
   print "total loss for all users =", totalLoss
-
-if __name__ == '__main__':
-  social_evaluate('./walkTrap/clusters_data.txt','./facebook/clusters_data.txt')
+  ff.write("total loss for all users ="+str(totalLoss)+'\n')
