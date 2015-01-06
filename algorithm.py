@@ -68,8 +68,10 @@ def real_data(g,t):
 	walktrapmap_clusters = extract_clusters(cl, reverseIdMap)
 	filename =  t.split('/')[1].split('.')[0]
 	return cl
-
-def walk_trap(g,t):
+def top_k_circle(k,circle):
+	circle.sort(key=lambda x:len(x),reverse=True)
+	return circle[:k]
+def walk_trap(g,t,step,k):
 	reverseIdMap = {}
 	idMap = {}
 	currentId = 0
@@ -78,15 +80,17 @@ def walk_trap(g,t):
 		reverseIdMap[currentId] = friend
 		currentId += 1
 	vertex_weights_list = []
-	dendogram = g.community_walktrap(steps=4)		
+	dendogram = g.community_walktrap(steps=step)		
 	with open('feature_weights.txt','r') as f:
 		for data in f:
 			vertex_weights_list.append(int(data.strip().split('--')[1]))
 	cl = dendogram.as_clustering()
 	new_clusters = []
 	for cluster in cl:
-		if len(cluster) > 7:
+		if len(cluster) > k:
 			new_clusters.append(cluster)
+	#new_clusters =  top_k_circle(k,new_clusters)
+	#quit()
 	#print new_clusters
 	#quit()
 	walktrapmap_clusters = extract_clusters(new_clusters, reverseIdMap)
@@ -95,7 +99,7 @@ def walk_trap(g,t):
 	return walktrapmap_clusters
 	#quit()
 
-def infomap(g,t):
+def infomap(g,t,trial,k):
 	reverseIdMap = {}
 	idMap = {}
 	currentId = 0
@@ -107,11 +111,15 @@ def infomap(g,t):
 	with open('feature_weights.txt','r') as f:
 		for data in f:
 			vertex_weights_list.append(int(data.strip().split('--')[1]))
-	dendogram = g.community_infomap(trials=10)#,vertex_weights=vertex_weights_list)
+	dendogram = g.community_infomap(trials=trial)#,vertex_weights=vertex_weights_list)
 	new_clusters = []
-	for cluster in list(dendogram):
+	'''for cluster in list(dendogram):
 		if len(cluster) > 7:
-			new_clusters.append(cluster)	
+			new_clusters.append(cluster)'''
+	for cluster in list(dendogram):
+		if len(cluster) > k:
+			new_clusters.append(cluster)
+	#new_clusters =  top_k_circle(5,new_clusters)
 	if len(new_clusters) == 0:
 		new_clusters.append(list(dendogram)[0])
 	infomap_clusters = extract_clusters(new_clusters, reverseIdMap)
@@ -226,7 +234,7 @@ def optimal_modularity(g,t):
 	dendogram = g.community_optimal_modularity()
 	optimal_modularity_clusters = extract_clusters(dendogram, reverseIdMap)
 	#write_file(6,t,list(optimal_modularity_clusters))
-
+	return optimal_modularity_clusters
 def spinglass(g,t):
 	reverseIdMap = {}
 	idMap = {}

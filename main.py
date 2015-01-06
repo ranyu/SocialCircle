@@ -10,6 +10,8 @@ from writesubmisson import write_main
 from socialCircles_metric import social_evaluate
 arpack_options.maxiter=300000
 from sklearn.metrics import jaccard_similarity_score,f1_score
+from spectral import algo_spectral
+from radicchi import algo_radicchi
 
 def loadFeatures_Train(filename,trainlist):
     featureMap = collections.defaultdict(dict)
@@ -132,55 +134,41 @@ def input_Train_data(featureMap,filename,flag = False):
 				#quit()
 	return g.simplify()
 
+def top_k_circle(k,circle):
+	circle.sort(key=lambda x:len(x),reverse=True)
+	return circle[:k]
+
 def main():
-	#quit()
-	#featureMap = collections.defaultdict(dict)
 	f_list = load_features_list('features_list.txt')
-	#print f_list
-	#quit()
 	featureMap = loadFeatures_Train('new_features.txt',f_list)
-	'''for s in glob.glob('facebook/*.feat'):
-		#print s
-		loadFeatures(featureMap,s)'''
 	flag = False #False--facebook,True--twitter,gplus
 	train_list = []
 	train_file = open('train_test.txt','r')
 	for data in train_file:
 		train_list.append(data.strip().split()[0])
 	#print len(train_list)
-	for t in train_list:#glob.glob('twitter/*.edges'):
-		f_name =  'egonets/'+t+'.egonet'
-		#e
-		#g = input_graph_data_fet(flag,featureMap,t)
-		#g = input_graph_data(flag,t)
-		g = input_Train_data(featureMap,f_name,False)
-		#print g
-		#quit()
-		print f_name
-		cl_walk = walk_trap(g,t)
-		cl_info = infomap(g,t)
-		inter_circle =  intersect_circles(cl_walk,cl_info)
-
-		write_file_alone('inter_walk_info',t,list(inter_circle))
-		#quit()
-		#fast_greedy(g,t)
-		#leading_eigenvector(g,t)
-		#label_propagation(g,t)
-		#mcl(g,t)
-		#multilevel(g,t) # Louvain another name
-		#A little slow,use it cautionly
-		#print g.clusters().giant()		
-		#edge_betweenness(g,t,flag)# Girvan Newman another name
-		#quit()
-		#Too slow,use it cautionly
-		#optimal_modularity(g,t) '''
-	write_main()
-	for file_name in glob.glob('*/clusters_ff.txt'):
-		print file_name.split('/')[0]+':\n'
-		#if file_name!='walkTrap_tr/clusters_clusters_train.txt':
-		social_evaluate(file_name,'groundtruth.txt')#'twitter/cluster_tw.txt')
-	#delete_circle()
-	#social_evaluate('inter_walk_info/clusters_clusters_train.txt','groundtruth.txt')
-	#train_file.close()
+	t_list = []
+	k_list = [7]
+	trail_list = [10]
+	step_list = [4]
+	#final_k = [1,2,3,4,6]
+	ff = open('result_record.txt','a')
+	for i in xrange(len(k_list)):
+		for j in xrange(len(trail_list)):
+			for k in xrange(len(step_list)):
+				t_list.append((k_list[i],trail_list[j],step_list[k]))#,final_k[p]))
+	for list_number in xrange(len(t_list)):		
+		for t in train_list:# glob.glob('twitter/*.edges'):
+			f_name =  'egonets/'+ t +'.egonet'
+			g = input_Train_data(featureMap,f_name,False)
+			print f_name
+			cl_walk = walk_trap(g,t,t_list[list_number][2],t_list[list_number][0])
+			cl_info = infomap(g,t,t_list[list_number][1],t_list[list_number][0])
+			inter_circle =  intersect_circles(cl_walk,cl_info)
+			#inter_circle = top_k_circle(t_list[list_number][3],inter_circle)
+			write_file_alone('inter_walk_info',t,list(inter_circle))
+		write_main()
+		#print k_list[list_number],trail_list[list_number],step_list[list_number],final_k[list_number]
+		social_evaluate(t_list[list_number],'inter_walk_info/clusters_ff.txt','groundtruth.txt',ff)#'twitter/cluster_tw.txt')
 if __name__ == '__main__':
 	main()
